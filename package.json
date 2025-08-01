@@ -11,5 +11,11 @@
   },
   "author": "helloint",
   "license": "MIT",
-  "description": "Extract Chinese and English subtitles from streaming media like Netflix, and merge them into dual subtitles."
+  "description": "Extract Chinese and English subtitles from streaming media like Netflix, and merge them into dual subtitles.",
+  "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "ffprobe": "^1.1.2",
+    "ffprobe-static": "^3.1.0",
+    "fluent-ffmpeg": "^2.1.3"
+  }
 }
