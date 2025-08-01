@@ -1,4 +1,5 @@
 # 一键批量提取流媒体视频的中英字幕，并自动合并为双语字幕。
+[![NPM](https://nodei.co/npm/dual-subtitle.png?downloads=true)](https://www.npmjs.com/package/dual-subtitle)
 
 ## 依赖
 需要本地有`Node.js`环境(包括`npm`)
