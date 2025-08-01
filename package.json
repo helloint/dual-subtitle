@@ -1,0 +1,15 @@
+{
+  "name": "dual-subtitle",
+  "version": "0.1.0",
+  "main": "index.js",
+  "type": "module",
+  "bin": {
+    "dual-subtitle": "./index.js"
+  },
+  "scripts": {
+    "test": "node ./index.js ./data/"
+  },
+  "author": "helloint",
+  "license": "MIT",
+  "description": "Extract Chinese and English subtitles from streaming media like Netflix, and merge them into dual subtitles."
+}
