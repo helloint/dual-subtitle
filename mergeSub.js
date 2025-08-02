@@ -87,4 +87,5 @@ export const mergeSrtFiles = (mainSrtPath, secondarySrtPath, outputPath) => {
 
     // 写入输出文件
     fs.writeFileSync(`${config.workdir}${outputPath}`, outputContent.trim());
+    console.log(`生成双语字幕文件：${outputPath}`);
 }

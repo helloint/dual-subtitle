@@ -12,9 +12,9 @@ const main = async () => {
     const mediaFiles = fs.readdirSync(config.workdir).filter((file) => config.exts.includes(path.extname(file)));
 
     for (const file of mediaFiles) {
-        console.log(`processing: ${file}`);
-        const metadata = await analyzeMedia(file);
-        const subIndex = findIndex(metadata);
+        console.log(`正在处理：${file}`);
+        const mediaInfo = await analyzeMedia(file);
+        const subIndex = findIndex(mediaInfo);
         const srts = await extractSub(file, subIndex);
         mergeSrtFiles(srts[0], srts[1], `${removeExtension(file)}.${config.srtTag}.srt`);
         deleteFile(srts[0]);

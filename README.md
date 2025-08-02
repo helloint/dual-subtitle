@@ -1,12 +1,10 @@
 # 一键批量提取流媒体视频的中英字幕，并自动合并为双语字幕。
+[![NPM](https://nodei.co/npm/dual-subtitle.png?downloads=true)](https://www.npmjs.com/package/dual-subtitle)
 
 ## 依赖
-需要本地先安装好`FFmpeg`(包含`ffmpeg`, `ffprobe`这两个命令)，以及有`Node.js`环境(包括`npm`)
+需要本地有`Node.js`环境(包括`npm`)
 
 * 安装【[Node.js/npm环境](https://nodejs.org/zh-cn/)】
-* 安装【[FFmpeg](http://ffmpeg.org/download.html)】
-
-计划在下个版本里去掉FFmpeg，改为依赖npm的ffmpeg，简化使用。
 
 ## 使用
 
