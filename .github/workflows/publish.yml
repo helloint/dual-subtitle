@@ -1,7 +1,15 @@
-name: Publish to npm
+name: Publish Package
 on:
     push:
         branches: [main]
+#        TODO: Use tags
+#        tags:
+#            - 'v*'
+
+permissions:
+    id-token: write  # Required for OIDC
+    contents: read
+
 jobs:
     publish:
         runs-on: ubuntu-latest
