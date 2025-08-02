@@ -11,7 +11,9 @@
 1. 进入视频所在目录
 2. 命令行执行：`npx dual-subtitle`
 
-字幕文件会以`.chs-eng.srt`结尾
+注：有些环境（比如群晖）如果没有npx，可以试试用`npm exec dual-subtitle`代替。
+
+生成的字幕文件会以`.chs-eng.srt`结尾。
 
 ## 介绍
 此工具主要是为了满足在Infuse上看流媒体视频时，能够显示双语字幕的需求。Infuse本身并不支持同时显示2条不同语言的字幕。
