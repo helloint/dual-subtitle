@@ -1,10 +1,9 @@
 name: Publish Package
+
 on:
     push:
-        branches: [main]
-#        TODO: Use tags
-#        tags:
-#            - 'v*'
+        tags:
+            - 'v*'
 
 permissions:
     id-token: write  # Required for OIDC
@@ -15,9 +14,16 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
+
             - uses: actions/setup-node@v4
               with:
-                  node-version: 20
-                  registry-url: https://registry.npmjs.org/
+                  node-version: '20'
+                  registry-url: 'https://registry.npmjs.org'
+
+            # Ensure npm 11.5.1 or later is installed
+            - name: Update npm
+              run: npm install -g npm@latest
             - run: npm ci
+            - run: npm run build --if-present
+            - run: npm test
             - run: npm publish
