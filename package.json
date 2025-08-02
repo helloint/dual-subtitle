@@ -7,7 +7,7 @@
     "dual-subtitle": "index.js"
   },
   "scripts": {
-    "test": "node ./index.js ./data/",
+    "test": "node index.js ./data/",
     "bumpVersion": "npx bbump"
   },
   "author": "helloint",
@@ -19,8 +19,8 @@
   },
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "@ffprobe-installer/ffprobe": "^2.1.2",
     "ffprobe": "^1.1.2",
-    "ffprobe-static": "^3.1.0",
     "fluent-ffmpeg": "^2.1.3"
   }
 }
