@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 import fs from 'fs';
 import path from 'path';
+import subtitleMerge from "subtitle-merge";
 import {config} from './config.js';
 import {findSub} from './findSub.js';
 import {analyzeMedia} from "./analyzeMedia.js";
 import {extractSub} from "./extractSub.js";
-import {mergeSrtFiles} from "./mergeSub.js";
 import {deleteFile, removeExtension} from "./utils.js";
 
 const main = async () => {
@@ -16,7 +16,7 @@ const main = async () => {
         const subTitles = await analyzeMedia(file);
         const targetSubs = findSub(subTitles);
         const srts = await extractSub(file, targetSubs);
-        mergeSrtFiles(srts[0], srts[1], `${removeExtension(file)}.${config.srtTag}.srt`);
+        subtitleMerge(config.workdir + srts[0], config.workdir + srts[1], `${config.workdir}${removeExtension(file)}.${config.srtTag}.srt`);
         deleteFile(srts[0]);
         deleteFile(srts[1]);
     }
