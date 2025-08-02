@@ -4,7 +4,7 @@
   "main": "index.js",
   "type": "module",
   "bin": {
-    "dual-subtitle": "./index.js"
+    "dual-subtitle": "index.js"
   },
   "scripts": {
     "test": "node ./index.js ./data/",
@@ -15,7 +15,7 @@
   "description": "Extract Chinese and English subtitles from streaming media like Netflix, and merge them into dual subtitles.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/helloint/dual-subtitle.git"
+    "url": "git+https://github.com/helloint/dual-subtitle.git"
   },
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
