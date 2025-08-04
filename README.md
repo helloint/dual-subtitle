@@ -11,7 +11,7 @@
 1. 进入视频所在目录
 2. 命令行执行：`npx dual-subtitle`
 
-注：有些环境（比如群晖）如果没有npx，可以试试用`npm exec dual-subtitle`代替。
+   注：有些环境（比如群晖）如果没有`npx`，可以用`npm exec`代替。
 
 生成的字幕文件会以`.chs-eng.srt`结尾。
 

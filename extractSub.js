@@ -1,3 +1,4 @@
+import readline from 'readline';
 import ffmpegInstaller from '@ffmpeg-installer/ffmpeg';
 import ffmpeg from 'fluent-ffmpeg';
 import {config} from "./config.js";
@@ -44,7 +45,8 @@ export const extractSub = (filename, targetSubs) => {
             })
             .on('progress', function (progress) {
                 const progressPercent = Math.round((timemarkToSeconds(progress.timemark) / duration) * 100);
-                console.log(`进行中，完成${(progressPercent || 0)}%`);
+                readline.cursorTo(process.stdout, 0);
+                process.stdout.write(`进行中，完成${(progressPercent || 0)}%`);
             })
             .on('end', function (str) {
                 console.log('转换任务完成！');
