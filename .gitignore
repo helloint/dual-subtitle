@@ -1,0 +1,6 @@
+# 依赖文件夹
+node_modules/
+
+# 编辑器和IDE配置
+.vscode/
+.idea/

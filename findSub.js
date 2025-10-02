@@ -59,24 +59,34 @@ const findChiSub = (subTitles) => {
  * 9,subrip,eng
  * 10,subrip,eng,SDH
  * 23,subrip,eng,English[CC]
- * 如果同时有SDH和非SDH版本，选非SDH版本。
+ * 选择策略：
+ * 1. 过滤掉空字幕（只有当 NUMBER_OF_FRAMES 存在且 < 10 时才过滤）
+ * 2. 如果同时有SDH和非SDH版本，选非SDH版本
+ * 3. 按原始顺序选择第一个可用的字幕
  */
 const findEngSub = (subTitles) => {
     const englishSubs = subTitles.filter(sub => sub.code === 'eng');
 
     if (englishSubs.length === 0) return null;
-    if (englishSubs.length === 1) return {
-        index: englishSubs[0].index,
-        duration: englishSubs[0].duration,
-    };
 
-    // Filter out SDH subtitles if there are multiple English options
-    const nonSDHSubs = englishSubs.filter(sub =>
-        !sub.name.includes('sdh')
-    );
+    // 过滤掉空字幕
+    const nonEmpty = englishSubs.filter(sub => {
+        const frames = Number(sub.frames);
+        if (!frames) return true;
+        return frames >= 10;
+    });
 
-    // Return first non-SDH sub if available, otherwise first English sub
-    const targetSub = nonSDHSubs[0] || englishSubs[0];
+    const candidatePool = nonEmpty.length > 0 ? nonEmpty : englishSubs;
+
+    if (candidatePool.length === 0) return null;
+
+    // 多个英文字幕时，优先去除 SDH
+    const nonSDHSubs = candidatePool.filter(sub => !sub.name.includes('sdh'));
+    const finalPool = nonSDHSubs.length > 0 ? nonSDHSubs : candidatePool;
+
+    // 按原始顺序选择第一个可用的字幕
+    const targetSub = finalPool[0];
+
     return targetSub ? {
         index: targetSub.index,
         duration: targetSub.duration
