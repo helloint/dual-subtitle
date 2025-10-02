@@ -41,19 +41,19 @@ export const extractSub = (filename, targetSubs) => {
             .outputOptions(['-map', `0:${targetSubs[1].index}`, '-c', 'copy'])
             .run()
             .on('start', function (str) {
-                console.log('转换任务开始～', str);
+                console.log('正在提取字幕文件...', str);
             })
             .on('progress', function (progress) {
                 const progressPercent = Math.round((timemarkToSeconds(progress.timemark) / duration) * 100);
                 readline.cursorTo(process.stdout, 0);
-                process.stdout.write(`进行中，完成${(progressPercent || 0)}%`);
+                process.stdout.write(`字幕提取中，进度：${(progressPercent || 0)}%`);
             })
             .on('end', function (str) {
-                console.log('转换任务完成！');
+                console.log('\n字幕提取完成。');
                 resolve([mainSrt, secondarySrt]);
             })
             .on('error', function (err) {
-                console.log('转换任务出错：', err);
+                console.log('字幕提取出错：', err);
                 reject(err);
             });
     });
