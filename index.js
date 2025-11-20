@@ -14,7 +14,7 @@ const main = async () => {
     for (const file of mediaFiles) {
         console.log(`正在处理：${file}`);
         const subTitles = await analyzeMedia(file);
-        const targetSubs = findSub(subTitles);
+        const targetSubs = await findSub(subTitles);
         const srts = await extractSub(file, targetSubs);
         subtitleMerge(config.workdir + srts[0], config.workdir + srts[1], `${config.workdir}${removeExtension(file)}.${config.srtTag}.srt`);
         deleteFile(srts[0]);

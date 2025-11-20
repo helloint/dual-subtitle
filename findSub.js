@@ -1,7 +1,9 @@
-export const findSub = (subTitles) => {
+import readline from 'readline';
+
+export const findSub = async (subTitles) => {
     console.log('查找简体和英语字幕...');
-    const chsSub = findChiSub(subTitles);
-    const engSub = findEngSub(subTitles);
+    let chsSub = findChiSub(subTitles);
+    let engSub = findEngSub(subTitles);
 
     if (chsSub) {
         console.log('找到简体中文字幕，索引为：', chsSub.index);
@@ -15,20 +17,66 @@ export const findSub = (subTitles) => {
         console.log('没有找到英语字幕');
     }
 
-    if (chsSub === null || engSub === null) {
-        // 打印所有可用的字幕信息，便于确认
+    if (!chsSub || !engSub) {
         console.log('所有可用字幕信息如下：');
         subTitles.forEach((s) => {
             console.log(`索引=${s.index}, code=${s.code}, name="${s.name}", duration=${s.duration}, frames=${s.frames}`);
         });
 
-        throw new Error('字幕查找失败，中断执行');
+        if (!chsSub) {
+            chsSub = await promptForSubIndex(subTitles, '中文');
+        }
+
+        if (!engSub) {
+            engSub = await promptForSubIndex(subTitles, '英文');
+        }
     }
 
+    console.log('最终选择的简体中文字幕索引为：', chsSub.index);
+    console.log('最终选择的英语字幕索引为：', engSub.index);
     console.log('时长：', chsSub.duration);
 
     return [chsSub, engSub];
-}
+};
+
+const promptForSubIndex = (subTitles, label) => {
+    return new Promise((resolve) => {
+        const rl = readline.createInterface({
+            input: process.stdin,
+            output: process.stdout
+        });
+
+        const ask = () => {
+            rl.question(`请输入${label}字幕的索引（按回车退出）: `, (answer) => {
+                const trimmed = answer.trim();
+                if (trimmed === '') {
+                    console.log('已退出。');
+                    rl.close();
+                    process.exit(0);
+                }
+                const value = Number(trimmed);
+                if (!Number.isInteger(value)) {
+                    console.log('请输入有效的整数索引。');
+                    ask();
+                    return;
+                }
+                const target = subTitles.find((s) => s.index === value);
+                if (!target) {
+                    console.log('未找到该索引对应的字幕，请重新输入。');
+                    ask();
+                    return;
+                }
+                rl.close();
+                resolve({
+                    index: target.index,
+                    duration: target.duration
+                });
+            });
+        };
+
+        ask();
+    });
+};
 
 /**
  * 目前看到的数据可能有：
