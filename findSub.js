@@ -3,20 +3,28 @@ export const findSub = (subTitles) => {
     const chsSub = findChiSub(subTitles);
     const engSub = findEngSub(subTitles);
 
-    if (chsSub === null || engSub === null) {
-        if (chsSub === null) {
-            console.log('没有找到简体中文字幕');
-        }
+    if (chsSub) {
+        console.log('找到简体中文字幕，索引为：', chsSub.index);
+    } else {
+        console.log('没有找到简体中文字幕');
+    }
 
-        if (engSub === null) {
-            console.log('没有找到英语字幕');
-        }
+    if (engSub) {
+        console.log('找到英语字幕，索引为：', engSub.index);
+    } else {
+        console.log('没有找到英语字幕');
+    }
+
+    if (chsSub === null || engSub === null) {
+        // 打印所有可用的字幕信息，便于确认
+        console.log('所有可用字幕信息如下：');
+        subTitles.forEach((s) => {
+            console.log(`索引=${s.index}, code=${s.code}, name="${s.name}", duration=${s.duration}, frames=${s.frames}`);
+        });
 
         throw new Error('字幕查找失败，中断执行');
     }
 
-    console.log('找到简体中文字幕，索引为：', chsSub.index);
-    console.log('找到英语字幕，索引为：', engSub.index);
     console.log('时长：', chsSub.duration);
 
     return [chsSub, engSub];
@@ -29,6 +37,7 @@ export const findSub = (subTitles) => {
  * 查找策略是：先找 'chi', 如果数量大于1，则进一步找 "简体"
  */
 const findChiSub = (subTitles) => {
+    // TBD: Consider to include 'chs' later
     const chineseSubtitles = subTitles.filter(subTitle => subTitle.code === 'chi');
 
     if (chineseSubtitles.length === 0) {
