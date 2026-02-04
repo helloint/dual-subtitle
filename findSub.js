@@ -32,8 +32,8 @@ export const findSub = async (subTitles) => {
         }
     }
 
-    console.log('最终选择的简体中文字幕索引为：', chsSub.index);
-    console.log('最终选择的英语字幕索引为：', engSub.index);
+    console.log(`最终选择的简体中文字幕索引为：${chsSub.index}，帧：${chsSub.frames}`);
+    console.log(`最终选择的英语字幕索引为：${engSub.index}，帧：${chsSub.frames}`);
     console.log('时长：', chsSub.duration);
 
     return [chsSub, engSub];
@@ -107,7 +107,8 @@ const findChiSub = (subTitles) => {
 
     return targetSub ? {
         index: targetSub.index,
-        duration: targetSub.duration
+        duration: targetSub.duration,
+        frames: targetSub.frames
     } : null;
 }
 
@@ -130,7 +131,7 @@ const findEngSub = (subTitles) => {
     const nonEmpty = englishSubs.filter(sub => {
         const frames = Number(sub.frames);
         if (!frames) return true;
-        return frames >= 10;
+        return frames >= 100;
     });
 
     const candidatePool = nonEmpty.length > 0 ? nonEmpty : englishSubs;
@@ -146,6 +147,7 @@ const findEngSub = (subTitles) => {
 
     return targetSub ? {
         index: targetSub.index,
-        duration: targetSub.duration
+        duration: targetSub.duration,
+        frames: targetSub.frames
     } : null;
 };
