@@ -32,8 +32,8 @@ export const findSub = async (subTitles) => {
         }
     }
 
-    console.log(`最终选择的简体中文字幕索引为：${chsSub.index}，帧：${chsSub.frames}`);
-    console.log(`最终选择的英语字幕索引为：${engSub.index}，帧：${chsSub.frames}`);
+    console.log('最终选择的简体中文字幕索引为：', chsSub.index, '，帧：', chsSub.frames);
+    console.log('最终选择的英语字幕索引为：', engSub.index, '，帧：', chsSub.frames);
     console.log('时长：', chsSub.duration);
 
     return [chsSub, engSub];
