@@ -21,14 +21,14 @@ export const findSub = async (subTitles) => {
     let sub2 = target2.finder(subTitles);
 
     if (sub1) {
-        console.log(`找到${target1.label}字幕，索引为：${sub1.index}`);
+        console.log('找到', target1.label, '字幕，索引为：', sub1.index);
     } else {
-        console.log(`没有找到${target1.label}字幕`);
+        console.log('没有找到', target1.label, '字幕');
     }
     if (sub2) {
-        console.log(`找到${target2.label}字幕，索引为：${sub2.index}`);
+        console.log('找到', target2.label, '字幕，索引为：', sub2.index);
     } else {
-        console.log(`没有找到${target2.label}字幕`);
+        console.log('没有找到', target2.label, '字幕');
     }
 
     if (!sub1 || !sub2) {
@@ -40,8 +40,8 @@ export const findSub = async (subTitles) => {
         if (!sub2) sub2 = await promptForSubIndex(subTitles, target2.label, sub1.index);
     }
 
-    console.log(`最终选择的${target1.label}字幕索引：${sub1.index}，帧：${sub1.frames ?? '-'}`);
-    console.log(`最终选择的${target2.label}字幕索引：${sub2.index}，帧：${sub2.frames ?? '-'}`);
+    console.log('最终选择的', target1.label, '字幕索引：', sub1.index, '，帧：', sub1.frames ?? '-');
+    console.log('最终选择的', target2.label, '字幕索引：', sub2.index, '，帧：', sub2.frames ?? '-');
     console.log('时长：', sub1.duration);
     return [sub1, sub2];
 };

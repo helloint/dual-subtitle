@@ -35,7 +35,7 @@ export const analyzeMedia = (file) => {
                     duration: Math.round(stream.duration),
                     frames: Number(stream.tags.NUMBER_OF_FRAMES) || 0
                 }));
-                console.log(`找到 ${subTitles.length} 条字幕。`);
+                console.log('找到', subTitles.length, '条字幕。');
                 resolve(subTitles);
             })
             .catch(function (err) {
