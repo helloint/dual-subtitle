@@ -39,8 +39,11 @@ const timemarkToSeconds = (timemark) => {
 
 export const extractSub = (filename, targetSubs) => {
     return new Promise((resolve, reject) => {
-        const mainSrt = `${removeExtension(filename)}.chs.srt`;
-        const secondarySrt = `${removeExtension(filename)}.eng.srt`;
+        // 使用字幕的 code 或 index 来生成文件名
+        const code1 = targetSubs[0].code || `sub${targetSubs[0].index}`;
+        const code2 = targetSubs[1].code || `sub${targetSubs[1].index}`;
+        const mainSrt = `${removeExtension(filename)}.${code1}.srt`;
+        const secondarySrt = `${removeExtension(filename)}.${code2}.srt`;
         const duration = targetSubs[0].duration;
         let startTs = 0;
 
