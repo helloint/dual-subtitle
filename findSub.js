@@ -1,153 +1,247 @@
 import readline from 'readline';
+import { t } from './i18n.js';
+
+// 默认要查找并合成的字幕：简体中文 + 英语。可扩展为更多 code。
+const DEFAULT_TARGETS = [
+    { code: 'chi', label: '简体中文', finder: findChiSub },
+    { code: 'eng', label: '英语', finder: findEngSub },
+];
+
+// 在同一进程内，一旦用户手动选择过一次字幕，后续文件都直接走手动选择流程
+let alwaysManual = false;
 
 export const findSub = async (subTitles) => {
-    console.log('查找简体和英语字幕...');
-    let chsSub = findChiSub(subTitles);
-    let engSub = findEngSub(subTitles);
-
-    if (chsSub) {
-        console.log('找到简体中文字幕，索引为：', chsSub.index);
-    } else {
-        console.log('没有找到简体中文字幕');
+    // 如果已经进入“总是手动选择”模式，跳过倒计时和自动匹配
+    if (alwaysManual) {
+        return await manualSelectSubs(subTitles);
     }
 
-    if (engSub) {
-        console.log('找到英语字幕，索引为：', engSub.index);
-    } else {
-        console.log('没有找到英语字幕');
+    const prefix = t('autoCountdownPrefix');
+    const interrupted = await waitForInterruptWithCountdown(3000, prefix);
+
+    if (interrupted) {
+        console.log(t('interruptedManual'));
+        alwaysManual = true;
+        return await manualSelectSubs(subTitles);
     }
 
-    if (!chsSub || !engSub) {
-        console.log('所有可用字幕信息如下：');
+    console.log(t('autoFindingChiEng'));
+    const [target1, target2] = DEFAULT_TARGETS;
+    let sub1 = target1.finder(subTitles);
+    let sub2 = target2.finder(subTitles);
+
+    if (sub1) {
+        console.log(t('foundLangSub', { label: target1.label }), sub1.index);
+    } else {
+        console.log(t('notFoundLangSub', { label: target1.label }));
+    }
+    if (sub2) {
+        console.log(t('foundLangSub', { label: target2.label }), sub2.index);
+    } else {
+        console.log(t('notFoundLangSub', { label: target2.label }));
+    }
+
+    if (!sub1 || !sub2) {
+        console.log(t('availableSubtitleList'));
         subTitles.forEach((s) => {
-            console.log(`索引=${s.index}, code=${s.code}, name="${s.name}", duration=${s.duration}, frames=${s.frames}`);
+            console.log(
+                t('subtitleListItem'),
+                s.index,
+                s.code,
+                s.name,
+                s.duration,
+                s.frames,
+            );
         });
-
-        if (!chsSub) {
-            chsSub = await promptForSubIndex(subTitles, '中文');
-        }
-
-        if (!engSub) {
-            engSub = await promptForSubIndex(subTitles, '英文');
-        }
+        if (!sub1) sub1 = await promptForSubIndex(subTitles, target1.label);
+        if (!sub2) sub2 = await promptForSubIndex(subTitles, target2.label, sub1.index);
+        // 一旦出现手动输入索引，后续文件全部改为手动选择模式
+        alwaysManual = true;
     }
 
-    console.log('最终选择的简体中文字幕索引为：', chsSub.index, '，帧：', chsSub.frames);
-    console.log('最终选择的英语字幕索引为：', engSub.index, '，帧：', chsSub.frames);
-    console.log('时长：', chsSub.duration);
-
-    return [chsSub, engSub];
+    console.log(
+        t('finalSelectedLang', { label: target1.label }),
+        sub1.index,
+        sub1.frames ?? '-',
+    );
+    console.log(
+        t('finalSelectedLang', { label: target2.label }),
+        sub2.index,
+        sub2.frames ?? '-',
+    );
+    console.log(t('duration'), sub1.duration);
+    return [sub1, sub2];
 };
 
-const promptForSubIndex = (subTitles, label) => {
+/**
+ * 等待指定毫秒，期间显示倒计时（数字每秒更新），任意键中断。
+ * @param {number} ms 总等待时间（毫秒）
+ * @param {string} prefix 倒计时前的提示文案（同一行）
+ * @returns {Promise<boolean>} 是否被按键中断
+ */
+const waitForInterruptWithCountdown = (ms, prefix) => {
     return new Promise((resolve) => {
-        const rl = readline.createInterface({
-            input: process.stdin,
-            output: process.stdout
-        });
+        if (!process.stdin.isTTY) {
+            setTimeout(() => resolve(false), ms);
+            return;
+        }
+        const stdin = process.stdin;
+        const wasRaw = stdin.isRaw || false;
+        if (!wasRaw) stdin.setRawMode(true);
+        stdin.resume();
+        stdin.setEncoding('utf8');
 
+        const totalSec = Math.ceil(ms / 1000);
+        let leftSec = totalSec;
+
+        const formatCountdown = (sec) => {
+            // 使用高亮颜色和箭头让数字更醒目
+            const YELLOW = '\x1b[33m';
+            const BOLD = '\x1b[1m';
+            const RESET = '\x1b[0m';
+            return `${prefix}  ${YELLOW}${BOLD}>>> ${sec} <<<${RESET}`;
+        };
+
+        const writeLine = () => {
+            readline.cursorTo(process.stdout, 0);
+            readline.clearLine(process.stdout, 1);
+            process.stdout.write(formatCountdown(leftSec));
+        };
+
+        writeLine();
+
+        let tickId;
+        tickId = setInterval(() => {
+            leftSec -= 1;
+            if (leftSec <= 0) {
+                clearInterval(tickId);
+                cleanup();
+                readline.cursorTo(process.stdout, 0);
+                readline.clearLine(process.stdout, 1);
+                process.stdout.write('\n');
+                resolve(false);
+                return;
+            }
+            writeLine();
+        }, 1000);
+
+        const cleanup = () => {
+            if (tickId) clearInterval(tickId);
+            stdin.removeListener('data', onKeyPress);
+            if (!wasRaw) stdin.setRawMode(false);
+            stdin.pause();
+        };
+
+        const onKeyPress = (key) => {
+            if (key === '\u0003') {
+                cleanup();
+                process.exit(0);
+            }
+            cleanup();
+            resolve(true);
+        };
+        stdin.on('data', onKeyPress);
+    });
+};
+
+const manualSelectSubs = async (subTitles) => {
+    console.log(t('manualAllAvailable'));
+    subTitles.forEach((s, idx) => {
+        console.log(
+            t('subtitleListItem'),
+            s.index,
+            s.code,
+            s.name,
+            s.duration,
+            s.frames,
+        );
+    });
+    const sub1 = await promptForSubIndex(subTitles, '第一个');
+    const sub2 = await promptForSubIndex(subTitles, '第二个', sub1.index);
+    console.log(t('manualSelectedFirst'), sub1.index, sub1.code, sub1.name);
+    console.log(t('manualSelectedSecond'), sub2.index, sub2.code, sub2.name);
+    console.log(t('duration'), sub1.duration);
+    return [sub1, sub2];
+};
+
+const promptForSubIndex = (subTitles, label, excludeIndex = null) => {
+    return new Promise((resolve) => {
+        const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
         const ask = () => {
-            rl.question(`请输入${label}字幕的索引（按回车退出）: `, (answer) => {
+            rl.question(t('promptIndex', { label, excludeIndex }), (answer) => {
                 const trimmed = answer.trim();
                 if (trimmed === '') {
-                    console.log('已退出。');
+                    console.log(t('exited'));
                     rl.close();
                     process.exit(0);
                 }
                 const value = Number(trimmed);
                 if (!Number.isInteger(value)) {
-                    console.log('请输入有效的整数索引。');
+                    console.log(t('invalidInteger'));
                     ask();
                     return;
                 }
                 const target = subTitles.find((s) => s.index === value);
                 if (!target) {
-                    console.log('未找到该索引对应的字幕，请重新输入。');
+                    console.log(t('indexNotFound'));
+                    ask();
+                    return;
+                }
+                if (excludeIndex !== null && target.index === excludeIndex) {
+                    console.log(t('sameAsFirst'));
                     ask();
                     return;
                 }
                 rl.close();
                 resolve({
                     index: target.index,
-                    duration: target.duration
+                    duration: target.duration,
+                    frames: target.frames,
+                    code: target.code,
+                    name: target.name,
                 });
             });
         };
-
         ask();
     });
 };
 
+// ---------- 按 language code 的查找策略（可扩展） ----------
+
 /**
- * 目前看到的数据可能有：
- * chi,简体
- * chi,Simplified Chinese
- * 查找策略是：先找 'chi', 如果数量大于1，则进一步找 "简体"
+ * 简体中文字幕：code=chi，多条时优先 name 含「简体」或 "simplified"
  */
-const findChiSub = (subTitles) => {
-    // TBD: Consider to include 'chs' later
-    const chineseSubtitles = subTitles.filter(subTitle => subTitle.code === 'chi');
-
-    if (chineseSubtitles.length === 0) {
-        return null;
-    }
-
-    if (chineseSubtitles.length === 1) {
-        return {
-            index: chineseSubtitles[0].index,
-            duration: chineseSubtitles[0].duration
-        };
-    }
-
-    // If multiple Chinese subtitles, look for Simplified Chinese
-    const targetSub = chineseSubtitles.find(subTitle =>
-        subTitle.name.includes('简体') ||
-        subTitle.name.includes('simplified')
-    );
-
-    return targetSub ? {
-        index: targetSub.index,
-        duration: targetSub.duration,
-        frames: targetSub.frames
-    } : null;
+function findChiSub(subTitles) {
+    const list = subTitles.filter((s) => s.code === 'chi');
+    if (list.length === 0) return null;
+    if (list.length === 1) return toSub(list[0]);
+    const preferred = list.find((s) => s.name.includes('简体') || s.name.includes('simplified'));
+    return preferred ? toSub(preferred) : null;
 }
 
 /**
- * 目前看到的数据可能有：
- * 9,subrip,eng
- * 10,subrip,eng,SDH
- * 23,subrip,eng,English[CC]
- * 选择策略：
- * 1. 过滤掉空字幕（只有当 NUMBER_OF_FRAMES 存在且 < 10 时才过滤）
- * 2. 如果同时有SDH和非SDH版本，选非SDH版本
- * 3. 按原始顺序选择第一个可用的字幕
+ * 英语字幕：code=eng，过滤空字幕（帧数过少），多条时优先非 SDH
  */
-const findEngSub = (subTitles) => {
-    const englishSubs = subTitles.filter(sub => sub.code === 'eng');
-
-    if (englishSubs.length === 0) return null;
-
-    // 过滤掉空字幕
-    const nonEmpty = englishSubs.filter(sub => {
-        const frames = Number(sub.frames);
+function findEngSub(subTitles) {
+    const list = subTitles.filter((s) => s.code === 'eng');
+    if (list.length === 0) return null;
+    const nonEmpty = list.filter((s) => {
+        const frames = Number(s.frames);
         if (!frames) return true;
         return frames >= 100;
     });
+    const pool = nonEmpty.length > 0 ? nonEmpty : list;
+    const nonSDH = pool.filter((s) => !s.name.includes('sdh'));
+    const final = nonSDH.length > 0 ? nonSDH : pool;
+    return final[0] ? toSub(final[0]) : null;
+}
 
-    const candidatePool = nonEmpty.length > 0 ? nonEmpty : englishSubs;
-
-    if (candidatePool.length === 0) return null;
-
-    // 多个英文字幕时，优先去除 SDH
-    const nonSDHSubs = candidatePool.filter(sub => !sub.name.includes('sdh'));
-    const finalPool = nonSDHSubs.length > 0 ? nonSDHSubs : candidatePool;
-
-    // 按原始顺序选择第一个可用的字幕
-    const targetSub = finalPool[0];
-
-    return targetSub ? {
-        index: targetSub.index,
-        duration: targetSub.duration,
-        frames: targetSub.frames
-    } : null;
-};
+function toSub(s) {
+    return {
+        index: s.index,
+        duration: s.duration,
+        frames: s.frames,
+        code: s.code,
+        name: s.name,
+    };
+}

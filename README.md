@@ -1,21 +1,49 @@
-# 一键批量提取流媒体视频的中英字幕，并自动合并为双语字幕。
+# dual-subtitle
+
+Extract two embedded subtitle tracks from video files and merge them into a single dual-language subtitle file. Supports batch processing for `.mp4` and `.mkv`.
+
+**[简体中文](README.zh-CN.md)**
+
 [![NPM](https://nodei.co/npm/dual-subtitle.png?downloads=true)](https://www.npmjs.com/package/dual-subtitle)
 
-## 依赖
-需要本地有`Node.js`环境(包括`npm`)
+## Requirements
 
-* 安装【[Node.js/npm环境](https://nodejs.org/zh-cn/)】
+- **Node.js** (with npm): [nodejs.org](https://nodejs.org/)
+- The CLI prefers your system **ffmpeg** and **ffprobe**; if missing, it falls back to bundled installers.
 
-## 使用
+## Usage
 
-1. 进入视频所在目录
-2. 命令行执行：`npx dual-subtitle`
+```bash
+# Process all .mp4 and .mkv in the current directory
+npx dual-subtitle
 
-   注：有些环境（比如群晖）如果没有`npx`，可以用`npm exec`代替。
+# Or specify a directory (with or without trailing /)
+npx dual-subtitle /path/to/videos
+```
 
-生成的字幕文件会以`.chs-eng.srt`结尾。
+> Without `npx` (e.g. some Synology setups):  
+> `node /path/to/dual-subtitle/index.js [directory]`
 
-## 介绍
-此工具主要是为了满足在Infuse上看流媒体视频时，能够显示双语字幕的需求。Infuse本身并不支持同时显示2条不同语言的字幕。
+### Output
 
-更多介绍，可以访问知乎文章：https://zhuanlan.zhihu.com/p/1915534266130997832
+- Merged subtitle file: `<basename>.<lang1>-<lang2>.srt`  
+  Example: `movie.chi-eng.srt` when auto-detecting Simplified Chinese + English.
+
+## Flow
+
+1. For **each video**, the tool scans embedded subtitle streams.
+2. **Before running**, there is a **3-second countdown**:
+   - **Do nothing**: It auto-selects **Simplified Chinese (chi)** and **English (eng)** and merges them. If either is missing, it lists tracks and asks you to enter the two **stream indices** to merge.
+   - **Press any key**: Skip auto-detect; it lists all subtitle tracks and asks you to enter the two indices to merge.
+3. **Batch**: If you **manually choose indices** for any file in the run, **all following files** in that run also use manual selection (no countdown, no chi/eng auto-detect).
+
+## UI language
+
+- **Default**: English. If the system or environment suggests Chinese (e.g. `LANG`, `LC_ALL`, or on macOS the primary system language), the UI switches to Chinese.
+- **Override**: Set `DUAL_SUBTITLE_LANG=zh` or `DUAL_SUBTITLE_LANG=en` to force the language.
+
+## About
+
+Useful for players like Infuse that don’t support showing two subtitle tracks at once: merge two embedded tracks (e.g. Chinese + English) into one dual subtitle file.
+
+More background (Chinese): [Zhihu](https://zhuanlan.zhihu.com/p/1915534266130997832)
