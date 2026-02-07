@@ -1,4 +1,5 @@
 import readline from 'readline';
+import { t } from './i18n.js';
 
 // 默认要查找并合成的字幕：简体中文 + 英语。可扩展为更多 code。
 const DEFAULT_TARGETS = [
@@ -6,43 +7,69 @@ const DEFAULT_TARGETS = [
     { code: 'eng', label: '英语', finder: findEngSub },
 ];
 
-export const findSub = async (subTitles) => {
-    const prefix = '将自动查找简体中文和英语字幕并合成，按任意键可中断并手动选择。';
-    const interrupted = await waitForInterruptWithCountdown(3000, prefix);
+// 在同一进程内，一旦用户手动选择过一次字幕，后续文件都直接走手动选择流程
+let alwaysManual = false;
 
-    if (interrupted) {
-        console.log('\n已中断自动流程，请手动选择要合并的 2 个字幕。');
+export const findSub = async (subTitles) => {
+    // 如果已经进入“总是手动选择”模式，跳过倒计时和自动匹配
+    if (alwaysManual) {
         return await manualSelectSubs(subTitles);
     }
 
-    console.log('\n自动查找简体中文和英语字幕...');
+    const prefix = t('autoCountdownPrefix');
+    const interrupted = await waitForInterruptWithCountdown(3000, prefix);
+
+    if (interrupted) {
+        console.log(t('interruptedManual'));
+        alwaysManual = true;
+        return await manualSelectSubs(subTitles);
+    }
+
+    console.log(t('autoFindingChiEng'));
     const [target1, target2] = DEFAULT_TARGETS;
     let sub1 = target1.finder(subTitles);
     let sub2 = target2.finder(subTitles);
 
     if (sub1) {
-        console.log('找到', target1.label, '字幕，索引为：', sub1.index);
+        console.log(t('foundLangSub', { label: target1.label }), sub1.index);
     } else {
-        console.log('没有找到', target1.label, '字幕');
+        console.log(t('notFoundLangSub', { label: target1.label }));
     }
     if (sub2) {
-        console.log('找到', target2.label, '字幕，索引为：', sub2.index);
+        console.log(t('foundLangSub', { label: target2.label }), sub2.index);
     } else {
-        console.log('没有找到', target2.label, '字幕');
+        console.log(t('notFoundLangSub', { label: target2.label }));
     }
 
     if (!sub1 || !sub2) {
-        console.log('可用字幕列表：');
+        console.log(t('availableSubtitleList'));
         subTitles.forEach((s) => {
-            console.log(`索引=${s.index}, code=${s.code}, name="${s.name}", duration=${s.duration}, frames=${s.frames}`);
+            console.log(
+                t('subtitleListItem'),
+                s.index,
+                s.code,
+                s.name,
+                s.duration,
+                s.frames,
+            );
         });
         if (!sub1) sub1 = await promptForSubIndex(subTitles, target1.label);
         if (!sub2) sub2 = await promptForSubIndex(subTitles, target2.label, sub1.index);
+        // 一旦出现手动输入索引，后续文件全部改为手动选择模式
+        alwaysManual = true;
     }
 
-    console.log('最终选择的', target1.label, '字幕索引：', sub1.index, '，帧：', sub1.frames ?? '-');
-    console.log('最终选择的', target2.label, '字幕索引：', sub2.index, '，帧：', sub2.frames ?? '-');
-    console.log('时长：', sub1.duration);
+    console.log(
+        t('finalSelectedLang', { label: target1.label }),
+        sub1.index,
+        sub1.frames ?? '-',
+    );
+    console.log(
+        t('finalSelectedLang', { label: target2.label }),
+        sub2.index,
+        sub2.frames ?? '-',
+    );
+    console.log(t('duration'), sub1.duration);
     return [sub1, sub2];
 };
 
@@ -118,44 +145,50 @@ const waitForInterruptWithCountdown = (ms, prefix) => {
 };
 
 const manualSelectSubs = async (subTitles) => {
-    console.log('\n所有可用字幕信息如下：');
+    console.log(t('manualAllAvailable'));
     subTitles.forEach((s, idx) => {
-        console.log(`[${idx}] 索引=${s.index}, code=${s.code}, name="${s.name}", duration=${s.duration}, frames=${s.frames}`);
+        console.log(
+            t('subtitleListItem'),
+            s.index,
+            s.code,
+            s.name,
+            s.duration,
+            s.frames,
+        );
     });
     const sub1 = await promptForSubIndex(subTitles, '第一个');
     const sub2 = await promptForSubIndex(subTitles, '第二个', sub1.index);
-    console.log(`最终选择的第一个字幕：索引=${sub1.index}, code=${sub1.code}, name="${sub1.name}"`);
-    console.log(`最终选择的第二个字幕：索引=${sub2.index}, code=${sub2.code}, name="${sub2.name}"`);
-    console.log('时长：', sub1.duration);
+    console.log(t('manualSelectedFirst'), sub1.index, sub1.code, sub1.name);
+    console.log(t('manualSelectedSecond'), sub2.index, sub2.code, sub2.name);
+    console.log(t('duration'), sub1.duration);
     return [sub1, sub2];
 };
 
 const promptForSubIndex = (subTitles, label, excludeIndex = null) => {
     return new Promise((resolve) => {
         const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-        const excludeHint = excludeIndex !== null ? `（不能选择索引 ${excludeIndex}）` : '';
         const ask = () => {
-            rl.question(`请输入${label}字幕的索引${excludeHint}（按回车退出）: `, (answer) => {
+            rl.question(t('promptIndex', { label, excludeIndex }), (answer) => {
                 const trimmed = answer.trim();
                 if (trimmed === '') {
-                    console.log('已退出。');
+                    console.log(t('exited'));
                     rl.close();
                     process.exit(0);
                 }
                 const value = Number(trimmed);
                 if (!Number.isInteger(value)) {
-                    console.log('请输入有效的整数索引。');
+                    console.log(t('invalidInteger'));
                     ask();
                     return;
                 }
                 const target = subTitles.find((s) => s.index === value);
                 if (!target) {
-                    console.log('未找到该索引对应的字幕，请重新输入。');
+                    console.log(t('indexNotFound'));
                     ask();
                     return;
                 }
                 if (excludeIndex !== null && target.index === excludeIndex) {
-                    console.log('不能选择与第一个字幕相同的索引，请重新输入。');
+                    console.log(t('sameAsFirst'));
                     ask();
                     return;
                 }

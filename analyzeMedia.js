@@ -1,14 +1,15 @@
 import { execSync } from 'child_process';
 import ffprobe from "ffprobe";
 import ffprobeInstaller from '@ffprobe-installer/ffprobe';
-import {config} from "./config.js";
+import { config } from "./config.js";
+import { t } from './i18n.js';
 
 const getFFprobePath = () => {
     try {
         // 检查系统是否安装了 ffprobe
         execSync('ffprobe -version', { stdio: 'ignore' });
         // 如果能执行到这里，说明系统已安装
-        console.log('使用本地ffprobe');
+        console.log(t('usingLocalFfprobe'));
         return 'ffprobe'; // 返回系统命令
     } catch (e) {
         return ffprobeInstaller.path;
@@ -16,7 +17,7 @@ const getFFprobePath = () => {
 }
 
 export const analyzeMedia = (file) => {
-    console.log(`获取字幕信息...`);
+    console.log(t('gettingSubtitleInfo'));
     const ffprobePath = getFFprobePath();
 
     /*
@@ -35,7 +36,8 @@ export const analyzeMedia = (file) => {
                     duration: Math.round(stream.duration),
                     frames: Number(stream.tags.NUMBER_OF_FRAMES) || 0
                 }));
-                console.log('找到', subTitles.length, '条字幕。');
+                // 使用 printf 风格 + 多参数，让编辑器高亮数字
+                console.log(t('foundSubtitleCount'), subTitles.length);
                 resolve(subTitles);
             })
             .catch(function (err) {

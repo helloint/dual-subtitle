@@ -2,17 +2,18 @@
 import fs from 'fs';
 import path from 'path';
 import subtitleMerge from "subtitle-merge";
-import {config} from './config.js';
-import {findSub} from './findSub.js';
-import {analyzeMedia} from "./analyzeMedia.js";
-import {extractSub} from "./extractSub.js";
-import {deleteFile, removeExtension} from "./utils.js";
+import { config } from './config.js';
+import { findSub } from './findSub.js';
+import { analyzeMedia } from "./analyzeMedia.js";
+import { extractSub } from "./extractSub.js";
+import { deleteFile, removeExtension } from "./utils.js";
+import { t } from './i18n.js';
 
 const main = async () => {
     const mediaFiles = fs.readdirSync(config.workdir).filter((file) => config.exts.includes(path.extname(file)));
 
     for (const file of mediaFiles) {
-        console.log(`正在处理：${file}`);
+        console.log(t('processingFile', { file }));
         const subTitles = await analyzeMedia(file);
         const targetSubs = await findSub(subTitles);
         const srts = await extractSub(file, targetSubs);
