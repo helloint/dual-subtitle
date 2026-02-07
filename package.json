@@ -7,7 +7,7 @@
     "dual-subtitle": "index.js"
   },
   "scripts": {
-    "test": "node index.js /Volumes/Download/一战再战[杜比视界版本][中文字幕].2025.2160p.iTunes.WEB-DL.DDP.5.1.Atmos.DV.H.265-DreamHD",
+    "test": "node index.js ./data/",
     "bumpVersion": "npx bbump"
   },
   "author": "helloint",
