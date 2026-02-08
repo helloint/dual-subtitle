@@ -1,4 +1,5 @@
 export default {
+  noVideoFiles: 'No .mp4 or .mkv files found in the current directory.',
   processingFile: ({ file }) => `Processing: ${file}`,
   usingLocalFfprobe: 'Using local ffprobe',
   usingLocalFfmpeg: 'Using local ffmpeg',
