@@ -12,6 +12,11 @@ import { t } from './i18n.js';
 const main = async () => {
     const mediaFiles = fs.readdirSync(config.workdir).filter((file) => config.exts.includes(path.extname(file)));
 
+    if (mediaFiles.length === 0) {
+        console.log(t('noVideoFiles'));
+        return;
+    }
+
     for (const file of mediaFiles) {
         console.log(t('processingFile', { file }));
         const subTitles = await analyzeMedia(file);

@@ -1,4 +1,5 @@
 export default {
+  noVideoFiles: '当前目录下未找到 .mp4 或 .mkv 视频文件。',
   processingFile: ({ file }) => `正在处理：${file}`,
   usingLocalFfprobe: '使用本地ffprobe',
   usingLocalFfmpeg: '使用本地ffmpeg',
