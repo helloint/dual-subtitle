@@ -21,8 +21,8 @@ npx dual-subtitle
 npx dual-subtitle /path/to/videos
 ```
 
-> Without `npx` (e.g. some Synology setups):  
-> `node /path/to/dual-subtitle/index.js [directory]`
+> If `npx` is not available (e.g. some Synology setups), use `npm exec` instead:  
+> `npm exec dual-subtitle` (optionally add a directory argument).
 
 ### Output
 

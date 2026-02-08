@@ -19,7 +19,7 @@ npx dual-subtitle
 npx dual-subtitle /path/to/videos
 ```
 
-> 若无 `npx`（如部分群晖环境），可用：`node /path/to/dual-subtitle/index.js [目录]`
+> 注：有些环境（比如群晖）如果没有 `npx`，可以用 `npm exec` 代替，对应命令：`npm exec dual-subtitle`（可加目录参数）。
 
 ### 输出文件
 
