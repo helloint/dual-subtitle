@@ -18,13 +18,13 @@ const getFFmpegPath = () => {
     }
 }
 
-const formatSeconds = (totalSeconds) => {
+/** 格式为分:秒 MM:SS，用于进度与完成提示 */
+const formatMinutesSeconds = (totalSeconds) => {
     if (!isFinite(totalSeconds) || totalSeconds < 0) totalSeconds = 0;
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const minutes = Math.floor(totalSeconds / 60);
     const seconds = Math.floor(totalSeconds % 60);
     const pad = (n) => String(n).padStart(2, '0');
-    return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+    return `${pad(minutes)}:${pad(seconds)}`;
 }
 
 /**
@@ -65,15 +65,17 @@ export const extractSub = (filename, targetSubs) => {
                 const elapsedSec = startTs ? (Date.now() - startTs) / 1000 : 0;
                 const remainingSec = fraction > 0 ? elapsedSec * (1 - fraction) / fraction : 0;
                 readline.cursorTo(process.stdout, 0);
+                readline.clearLine(process.stdout, 0);
                 process.stdout.write(
                     t('extractingProgress', {
                         progressPercent,
-                        remaining: formatSeconds(remainingSec),
+                        remaining: formatMinutesSeconds(remainingSec),
                     }),
                 );
             })
             .on('end', function (str) {
-                console.log(t('extractingDone'));
+                const elapsedSec = startTs ? (Date.now() - startTs) / 1000 : 0;
+                process.stdout.write('\n' + t('extractingDoneWithTime', { time: formatMinutesSeconds(elapsedSec) }) + '\n');
                 resolve([mainSrt, secondarySrt]);
             })
             .on('error', function (err) {

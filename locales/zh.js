@@ -8,7 +8,7 @@ export default {
   foundSubtitleCount: '找到 %d 条字幕。',
 
   // findSub
-  autoCountdownPrefix: '将自动查找简体中文(chi)和英语(eng)字幕并合成，按任意键可中断并手动选择。',
+  autoCountdownPrefix: '将自动查找简体中文(chs)和英语(eng)字幕并合成，按任意键可中断并手动选择。',
   interruptedManual: '\n已中断自动流程，请手动选择要合并的 2 个字幕。',
   autoFindingChiEng: '\n自动查找简体中文和英语字幕...',
   foundLangSub: ({ label }) => `找到${label}字幕，索引为：%d`,
@@ -35,7 +35,7 @@ export default {
   extractingStart: '正在提取字幕文件...',
   extractingProgress: ({ progressPercent, remaining }) =>
     `字幕提取中，进度：${progressPercent || 0}% | 预计剩余：${remaining}`,
-  extractingDone: '\n字幕提取完成。',
+  extractingDoneWithTime: ({ time }) => `字幕提取完成，总用时：${time}`,
   extractingError: ({ err }) => `字幕提取出错：${err}`,
 };
 
