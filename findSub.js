@@ -104,7 +104,7 @@ const waitForInterruptWithCountdown = (ms, prefix) => {
 
         const writeLine = () => {
             readline.cursorTo(process.stdout, 0);
-            readline.clearLine(process.stdout, 1);
+            readline.clearLine(process.stdout, 0);
             process.stdout.write(formatCountdown(leftSec));
         };
 
@@ -117,7 +117,7 @@ const waitForInterruptWithCountdown = (ms, prefix) => {
                 clearInterval(tickId);
                 cleanup();
                 readline.cursorTo(process.stdout, 0);
-                readline.clearLine(process.stdout, 1);
+                readline.clearLine(process.stdout, 0);
                 process.stdout.write('\n');
                 resolve(false);
                 return;

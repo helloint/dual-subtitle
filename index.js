@@ -23,9 +23,10 @@ const main = async () => {
         const targetSubs = await findSub(subTitles);
         const srts = await extractSub(file, targetSubs);
         
-        // 使用字幕的 code 来生成输出文件名
-        const code1 = targetSubs[0].code || `sub${targetSubs[0].index}`;
-        const code2 = targetSubs[1].code || `sub${targetSubs[1].index}`;
+        // 使用字幕的 code 生成输出文件名；流里是 chi 时对外输出为 chs（简体中文）
+        const toOutputCode = (code) => (code === 'chi' ? 'chs' : code);
+        const code1 = toOutputCode(targetSubs[0].code) || `sub${targetSubs[0].index}`;
+        const code2 = toOutputCode(targetSubs[1].code) || `sub${targetSubs[1].index}`;
         const outputSrt = `${config.workdir}${removeExtension(file)}.${code1}-${code2}.srt`;
         
         subtitleMerge(config.workdir + srts[0], config.workdir + srts[1], outputSrt);

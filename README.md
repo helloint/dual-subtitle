@@ -27,15 +27,15 @@ npx dual-subtitle /path/to/videos
 ### Output
 
 - Merged subtitle file: `<basename>.<lang1>-<lang2>.srt`  
-  Example: `movie.chi-eng.srt` when auto-detecting Simplified Chinese + English.
+  Example: `movie.chs-eng.srt` when auto-detecting Simplified Chinese + English.
 
 ## Flow
 
 1. For **each video**, the tool scans embedded subtitle streams.
 2. **Before running**, there is a **3-second countdown**:
-   - **Do nothing**: It auto-selects **Simplified Chinese (chi)** and **English (eng)** and merges them. If either is missing, it lists tracks and asks you to enter the two **stream indices** to merge.
+   - **Do nothing**: It auto-selects **Simplified Chinese (chs)** and **English (eng)** and merges them. If either is missing, it lists tracks and asks you to enter the two **stream indices** to merge.
    - **Press any key**: Skip auto-detect; it lists all subtitle tracks and asks you to enter the two indices to merge.
-3. **Batch**: If you **manually choose indices** for any file in the run, **all following files** in that run also use manual selection (no countdown, no chi/eng auto-detect).
+3. **Batch**: If you **manually choose indices** for any file in the run, **all following files** in that run also use manual selection (no countdown, no chs/eng auto-detect).
 
 ## UI language
 
