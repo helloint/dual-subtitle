@@ -17,7 +17,7 @@ export default {
   // findSub
   autoCountdownPrefix: '将自动查找简体中文(chs)和英语(eng)字幕并合成，按任意键可中断并手动选择。',
   interruptedManual: '\n已中断自动流程，请手动选择要合并的 2 个字幕。',
-  autoFindingChiEng: '\n自动查找简体中文和英语字幕...',
+  autoFindingChiEng: '自动查找简体中文和英语字幕...',
   foundLangSub: ({ label }) => `找到${label}字幕，索引为：%d`,
   notFoundLangSub: ({ label }) => `没有找到${label}字幕`,
   availableSubtitleList: '可用字幕列表：',

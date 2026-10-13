@@ -56,7 +56,6 @@ export const waitForInterruptWithCountdown = (ms, prefix) => {
                 cleanup();
                 readline.cursorTo(process.stdout, 0);
                 readline.clearLine(process.stdout, 0);
-                process.stdout.write('\n');
                 resolve(false);
                 return;
             }
