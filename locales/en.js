@@ -1,6 +1,13 @@
 export default {
   noVideoFiles: 'No .mp4 or .mkv files found in the current directory.',
   processingFile: ({ file }) => `Processing: ${file}`,
+  // multi-video selection
+  multiVideoCountdownPrefix: ({ count }) => `Found ${count} videos, all will be processed. Press any key to interrupt and choose manually.`,
+  videoList: '\nVideo files:',
+  videoListItem: '%d. %s',
+  promptVideoIndex: ({ max }) => `Enter video number(s) to process (1-${max}, separate multiple with comma or space, press Enter to exit): `,
+  invalidVideoIndex: ({ max }) => `Please enter valid number(s) between 1 and ${max}.`,
+
   usingLocalFfprobe: 'Using local ffprobe',
   usingLocalFfmpeg: 'Using local ffmpeg',
   gettingSubtitleInfo: 'Getting subtitle info...',

@@ -1,6 +1,13 @@
 export default {
   noVideoFiles: '当前目录下未找到 .mp4 或 .mkv 视频文件。',
   processingFile: ({ file }) => `正在处理：${file}`,
+  // 多视频选择
+  multiVideoCountdownPrefix: ({ count }) => `发现 ${count} 个视频，将全部处理，按任意键可中断并手动选择。`,
+  videoList: '\n视频列表：',
+  videoListItem: '%d. %s',
+  promptVideoIndex: ({ max }) => `请输入要处理的视频序号（1-${max}，多个用逗号或空格分隔，按回车退出）: `,
+  invalidVideoIndex: ({ max }) => `请输入 1-${max} 之间的有效序号。`,
+
   usingLocalFfprobe: '使用本地ffprobe',
   usingLocalFfmpeg: '使用本地ffmpeg',
   gettingSubtitleInfo: '获取字幕信息...',
