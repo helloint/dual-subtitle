@@ -31,6 +31,9 @@ npx dual-subtitle /path/to/videos
 
 ## Flow
 
+0. **Multiple videos**: If the directory has more than one video, a **3-second countdown** is shown first:
+   - **Do nothing**: All videos are processed.
+   - **Press any key** (e.g. Enter): It lists all videos with numbers; enter one or more numbers (comma or space separated, e.g. `1,3`) to process only those.
 1. For **each video**, the tool scans embedded subtitle streams.
 2. **Before running**, there is a **3-second countdown**:
    - **Do nothing**: It auto-selects **Simplified Chinese (chs)** and **English (eng)** and merges them. If either is missing, it lists tracks and asks you to enter the two **stream indices** to merge.
